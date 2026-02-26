@@ -1,0 +1,8 @@
+# MCP SDK
+mcp>=0.1.0
+
+# Snowflake connector
+snowflake-connector-python>=3.0.0
+
+# Additional dependencies
+python-dotenv>=1.0.0
