@@ -36,6 +36,7 @@ This MCP server gives Claude the ability to:
 - [Security](#-security)
 - [Extending](#-extending-this-server)
 - [Troubleshooting](#-troubleshooting)
+- [FAQ](#-frequently-asked-questions)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -65,9 +66,11 @@ python test_connection.py
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- Snowflake account with access credentials
-- Claude Code CLI (for MCP integration)
+- **Python 3.8 or higher**
+- **Snowflake account** with access credentials
+- **Claude Code CLI** (for MCP integration) - [Get it here](https://claude.ai/code)
+
+**Note:** You do NOT need a separate Claude API key! The MCP server runs locally and only requires Snowflake credentials. See [FAQ](#-frequently-asked-questions) for details.
 
 ### Install Dependencies
 
@@ -391,6 +394,81 @@ Tool(
 **"Snowflake connector errors"**
 - ✅ Update connector: `pip install --upgrade snowflake-connector-python`
 - ✅ Check Python version (3.8+ required)
+
+## ❓ Frequently Asked Questions
+
+### Do I need a Claude API key?
+
+**No!** The MCP server itself does NOT require a Claude API key. Here's what you actually need:
+
+#### What You Need:
+1. **Claude Code CLI** - Authenticate once with `claude auth login`
+2. **Snowflake credentials** - In your `.env` file
+3. **That's it!**
+
+#### How It Works:
+```
+┌─────────────────────┐
+│   Claude Code CLI   │ ← Uses your Claude subscription
+└──────────┬──────────┘
+           │ Local communication (stdio)
+┌──────────▼──────────┐
+│  MCP Server         │ ← NO API key needed!
+│  (server.py)        │    Just queries Snowflake
+└──────────┬──────────┘
+           │ Snowflake credentials only
+┌──────────▼──────────┐
+│   Snowflake DB      │
+└─────────────────────┘
+```
+
+The MCP server is just a **local tool provider** that extends Claude Code's capabilities. It runs on your machine and only talks to Snowflake.
+
+#### Cost Breakdown:
+- ✅ **Claude Code usage**: Included in your Claude subscription
+- ✅ **MCP Server**: Free (runs locally, no external API calls)
+- ✅ **Snowflake queries**: Your normal Snowflake compute costs apply
+
+### Can I use this without Claude Code?
+
+The MCP server is specifically designed to work with MCP-compatible clients like Claude Code. However, you could:
+- Use it with other MCP clients (if they support MCP protocol)
+- Adapt the code to work as a standalone CLI tool
+- Use the Snowflake query functions directly in your own Python scripts
+
+### Is my data secure?
+
+Yes! Here's why:
+- ✅ **Runs locally** - MCP server runs on your machine
+- ✅ **Direct connection** - Queries go straight to Snowflake
+- ✅ **No third-party servers** - Your data never leaves your network
+- ✅ **Credentials stay local** - `.env` file is never uploaded
+
+Your Snowflake credentials and query results stay between your machine and Snowflake. Claude Code sees query results only when you ask it to analyze them.
+
+### What's the difference between this and Snowflake's UI?
+
+| Feature | Snowflake UI | Snowflake MCP |
+|---------|--------------|---------------|
+| Query execution | ✅ Manual | ✅ AI-assisted |
+| Natural language | ❌ No | ✅ Yes |
+| Multi-step analysis | Manual | ✅ Automated |
+| Context across queries | ❌ No | ✅ Yes |
+| Schema discovery | Manual search | ✅ Ask Claude |
+| Daily monitoring | Repetitive | ✅ Can automate |
+| Cost | Free | Free + Snowflake compute |
+
+### Does this work with other data warehouses?
+
+The current implementation is Snowflake-specific, but the pattern can be adapted for:
+- PostgreSQL
+- MySQL
+- BigQuery
+- Databricks
+- Redshift
+- Any database with a Python connector!
+
+Check the [Contributing](#-contributing) section if you want to add support for other databases.
 
 ## 🤝 Contributing
 
